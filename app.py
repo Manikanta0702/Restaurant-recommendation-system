@@ -5,6 +5,12 @@ import requests
 import math
 from sklearn.metrics.pairwise import cosine_similarity
 from fuzzywuzzy import process
+import matplotlib.pyplot as plt
+import seaborn as sns
+import plotly.express as px
+import folium
+from streamlit_folium import folium_static
+
 
 # Load vectorizer, tfidf matrix, and data
 @st.cache_data
@@ -190,3 +196,52 @@ if st.sidebar.button("🔎 Get Recommendations"):
         )
         st.subheader("🌆 City-wide Recommendations")
         display_recommendations(recommendations)
+if st.sidebar.button("📊 Show Analysis"):
+    st.subheader("📈 Advanced Data Analysis")
+    
+    # Rating Distribution
+    # Create two columns
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.markdown("### ⭐ Restaurant Rating Distribution")
+
+        plt.figure(figsize=(8, 5))
+        sns.histplot(data['rating'].dropna(), bins=10, kde=True, color='blue')
+        plt.xlabel("Rating")
+        plt.ylabel("Count")
+        plt.title("Restaurant Rating Distribution")
+        st.pyplot(plt)
+
+        st.markdown("### 📍 Top Restaurant Locations")
+        top_locations = data['location'].value_counts().head(10)
+        fig = px.bar(top_locations, x=top_locations.index, y=top_locations.values, labels={'x': 'Location', 'y': 'Count'}, title='Top 10 Locations')
+        st.plotly_chart(fig)
+
+    with col2:
+       st.markdown("### 💰 Price Range Distribution")
+
+       plt.figure(figsize=(8, 5))
+       sns.histplot(data['price_for_two'].dropna(), bins=10, kde=True, color='green')
+       plt.xlabel("Price for Two")
+       plt.ylabel("Count")   
+       plt.title("Price Range Distribution")
+       st.pyplot(plt)
+
+       st.markdown("### 🥗 Veg vs Non-Veg Restaurants")
+       veg_counts = data['Veg'].value_counts()
+       fig = px.pie(values=veg_counts.values, names=veg_counts.index, title='Veg vs Non-Veg Distribution')
+       st.plotly_chart(fig)
+    
+    
+    # Correlation Heatmap
+    st.markdown("### ⭐ Rating vs Price for Two")
+    fig = px.scatter(data, x='price_for_two', y='rating', trendline='ols', title='Price vs Rating')
+    st.plotly_chart(fig)
+
+    
+    
+    
+    # Restaurant Availability Time Analysis
+    
+    st.success("Advanced Analysis Completed Successfully!")
